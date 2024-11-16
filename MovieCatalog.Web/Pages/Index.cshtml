@@ -1,0 +1,114 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<div class="row">
+    <div class="col-12 mb-3">
+        <a asp-page="/Title" class="btn btn-primary">
+            Új film hozzáadása
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 col-12 text-center" style="font-size: 0.8em">
+        <div>
+            @foreach (var genre in Model.GenresWithCounts)
+            {
+                <span class="text-nowrap" style="font-size: 1.2em">
+                    @genre.Key.Name
+                    (<small class="text-muted">@genre.Value</small>)
+                </span>
+            }
+        </div>
+        <hr class="d-block d-md-none" />
+    </div>
+
+    <div class="col-md-8 col-12">
+        <div class="row">
+            @foreach (var title in Model.FilteredTitles)
+            {
+                <div class="col-6 col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="/">
+                                <h5>
+                                    @title.PrimaryTitle
+                                    <small>
+                                        (@title.StartYear
+                                        @if (title.EndYear.HasValue)
+                                        {
+                                            <text> - @title.EndYear</text>
+                                        }
+                                        )
+                                    </small>
+                                </h5>
+                            </a>
+                            @if (!string.IsNullOrEmpty(title.OriginalTitle) && title.OriginalTitle != title.PrimaryTitle)
+                            {
+                                <h6 class="text-muted"><i>@title.OriginalTitle</i></h6>
+                            }
+                            <span class="badge rounded-pill bg-primary text-nowrap">
+                                @title.TitleType
+                            </span>
+                            @foreach (var genre in title.TitleGenres.Select(g => g.Genre.Name))
+                            {
+                                <span class="badge rounded-pill bg-secondary text-nowrap">@genre</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Pagination controls -->
+            <div class="pagination-container text-center mt-3">
+                <span class="total-results">@Model. results.</span>
+                <ul class="pagination justify-content-center">
+                    <!-- "First" button -->
+                    <li class="page-item">
+                        <a class="page-link" asp-page-handler="OnGet" asp-route-PageNumber="1">
+                            1
+                        </a>
+                    </li>
+
+                    <!-- "Previous pages" ellipsis, only if needed -->
+                    @if (Model.PageNumber > 3)
+                    {
+                        <li class="page-item">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+
+                    <!-- Page number buttons around the current page -->
+                    @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.LastPage, Model.PageNumber + 2); i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-page-handler="OnGet" asp-route-PageNumber="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- "Next pages" ellipsis, only if needed -->
+                    @if (Model.PageNumber < Model.LastPage - 2)
+                    {
+                        <li class="page-item">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+
+                    <!-- "Last" button -->
+                    <li class="page-item">
+                        <a class="page-link" asp-page-handler="OnGet" asp-route-PageNumber="@(Model.LastPage)">
+                            @Model.LastPage
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
