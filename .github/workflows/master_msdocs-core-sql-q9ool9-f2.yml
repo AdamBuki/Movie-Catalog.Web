@@ -1,5 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
 name: Build and deploy ASP.Net Core app to Azure Web App - msdocs-core-sql-q9ool9-f2
 on:
   push:
@@ -32,17 +30,20 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write  # This is required for requesting the JWT
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
+      - name: Checkout the repo
+        uses: actions/checkout@v4
 
-      - name: List files in the current directory
+      # Ellenőrizzük, hogy a fájl ott van a repóban
+      - name: List files to confirm DACPAC location
         run: |
-          ls -alh
+          ls -alh # Ez segít ellenőrizni, hogy a fájl elérhető-e
 
+      # Másoljuk a DACPAC fájlt az appba
+      - name: Copy DACPAC to wwwroot
+        run: |
+          cp imdbtitles_sample_azure.dacpac /home/site/wwwroot/
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -50,12 +51,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AB2E5348B8574B9FB61670AC33DAFB62 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_77512B7148C64A6B99F9EC956203DC01 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_388BBC9621FA4EE39AA772210E3927A7 }}
-
-      - name: Copy DACPAC to wwwroot
-        run: |
-          mkdir -p $HOME/site/wwwroot
-          cp imdbtitles_sample_azure.dacpac $HOME/site/wwwroot/
-
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
