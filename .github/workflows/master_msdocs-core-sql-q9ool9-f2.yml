@@ -43,7 +43,7 @@ jobs:
       # Másoljuk a DACPAC fájlt az appba
       - name: Copy DACPAC to wwwroot
         run: |
-          cp imdbtitles_sample_azure.dacpac /home/site/wwwroot/
+          sudo cp imdbtitles_sample_azure.dacpac /home/site/wwwroot/
 
       - name: Login to Azure
         uses: azure/login@v2
