@@ -48,7 +48,7 @@ jobs:
 
       - name: Copy dacpac
         run: |
-          cp MovieCatalog.Web/    imdbtitles_sample_azure.dacpac /home/site/wwwroot/
+          cp MovieCatalog.Web/    imdbtitles_sample_azure.dacpac /site/wwwroot/
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
