@@ -25,12 +25,11 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
-      - name: Copy dacpac
-        run: cp imdbtitles_sample_azure.dacpac /home/site/wwwroot
-
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        
+
+      - name: Copy dacpac to build output
+        run: cp imdbtitles_sample_azure.dacpac ${{env.DOTNET_ROOT}}/myapp
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
