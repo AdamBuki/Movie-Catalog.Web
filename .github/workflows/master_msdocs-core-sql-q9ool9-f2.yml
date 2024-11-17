@@ -23,13 +23,13 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Publish with dotnet
-        run: dotnet publish -c Release -o /home/site/wwwroot
+        run: dotnet publish -c Release -o /tmp/myapp
 
       - name: Upload DACPAC for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: imdb-database-dacpac
-          path: /home/site/wwwroot/imdbtitles_sample_azure.dacpac
+          path: /tmp/myapp/imdbtitles_sample_azure.dacpac
 
   deploy:
     runs-on: ubuntu-latest
@@ -73,12 +73,12 @@ jobs:
       # Ellenőrizd, hogy ott van-e a DACPAC fájl
       - name: Verify DACPAC file location
         run: |
-          ls /home/site/wwwroot/imdbtitles_sample_azure.dacpac
+          ls /tmp/myapp/imdbtitles_sample_azure.dacpac
 
       # DACPAC fájl publikálása az Azure SQL adatbázisba
       - name: Publish DACPAC to Azure SQL Database
         run: |
-          /home/sqlpackage/sqlpackage /Action:Publish /SourceFile:"/home/site/wwwroot/imdbtitles_sample_azure.dacpac" /TargetConnectionString:"$SQLAZURECONNSTR_AZURE_SQL_CONNECTIONSTRING"
+          /home/sqlpackage/sqlpackage /Action:Publish /SourceFile:"/tmp/myapp/imdbtitles_sample_azure.dacpac" /TargetConnectionString:"$SQLAZURECONNSTR_AZURE_SQL_CONNECTIONSTRING"
 
       # Takarítás
       - name: Clean up sqlpackage
