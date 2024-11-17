@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - msdocs-core-sql-q9ool9-f2
 
 on:
@@ -12,13 +9,10 @@ on:
 jobs:
 
   build:
-  
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -28,27 +22,14 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      - name: Copy dacpac to build output
-        run: cp imdbtitles_sample_azure.dacpac ${{env.DOTNET_ROOT}}/myapp
+      - name: Publish with dotnet
+        run: dotnet publish -c Release -o /home/site/wwwroot
 
-      - name: Prepare publish output directory
-        run: |
-          if [ -f "/usr/share/dotnet/myapp" ]; then
-          rm /usr/share/dotnet/myapp
-          fi
-          mkdir -p /usr/share/dotnet/myapp
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o /usr/share/dotnet/myapp
-          
-#      - name: dotnet publish
- #       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
+      - name: Upload DACPAC for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: imdb-database-dacpac
+          path: /home/site/wwwroot/imdbtitles_sample_azure.dacpac
 
   deploy:
     runs-on: ubuntu-latest
@@ -60,11 +41,11 @@ jobs:
       id-token: write #This is required for requesting the JWT
 
     steps:
-      - name: Download artifact from build job
+      - name: Download DACPAC from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: imdb-database-dacpac
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -79,4 +60,28 @@ jobs:
           app-name: 'msdocs-core-sql-q9ool9-f2'
           slot-name: 'Production'
           package: .
-          
+
+      # sqlpackage telepítése
+      - name: Install sqlpackage
+        run: |
+          wget https://aka.ms/sqlpackage-linux -O /tmp/sqlpackage-linux.zip
+          cd /home
+          mkdir sqlpackage
+          unzip /tmp/sqlpackage-linux.zip -d /home/sqlpackage
+          chmod a+x /home/sqlpackage/sqlpackage
+
+      # Ellenőrizd, hogy ott van-e a DACPAC fájl
+      - name: Verify DACPAC file location
+        run: |
+          ls /home/site/wwwroot/imdbtitles_sample_azure.dacpac
+
+      # DACPAC fájl publikálása az Azure SQL adatbázisba
+      - name: Publish DACPAC to Azure SQL Database
+        run: |
+          /home/sqlpackage/sqlpackage /Action:Publish /SourceFile:"/home/site/wwwroot/imdbtitles_sample_azure.dacpac" /TargetConnectionString:"$SQLAZURECONNSTR_AZURE_SQL_CONNECTIONSTRING"
+
+      # Takarítás
+      - name: Clean up sqlpackage
+        run: |
+          sudo rm -rf /home/sqlpackage
+          sudo rm /tmp/sqlpackage-linux.zip
