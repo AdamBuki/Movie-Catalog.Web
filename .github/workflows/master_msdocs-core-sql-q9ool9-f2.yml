@@ -46,9 +46,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_77512B7148C64A6B99F9EC956203DC01 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_388BBC9621FA4EE39AA772210E3927A7 }}
 
-      - name: Copy dacpac
+      - name: Copy DACPAC to wwwroot
         run: |
-          cp MovieCatalog.Web/    imdbtitles_sample_azure.dacpac /site/wwwroot/
+          mkdir -p $HOME/site/wwwroot
+          cp imdbtitles_sample_azure.dacpac $HOME/site/wwwroot/
+
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
