@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4  # A repó klónozása
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -22,13 +22,18 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      - name: Publish with dotnet
-        run: dotnet publish -c Release -o /tmp/myapp
-
+      # Másold a DACPAC fájlt a megfelelő helyre
+      - name: Copy DACPAC file to publish folder
+        run: |
+          echo "Copying DACPAC file..."
+          cp imdbtitles_sample_azure.dacpac /tmp/myapp/imdbtitles_sample_azure.dacpac
+          
+      # Ellenőrizd, hogy valóban ott van a DACPAC fájl
       - name: Verify DACPAC file location
         run: |
           ls /tmp/myapp/imdbtitles_sample_azure.dacpac
-          
+
+      # Upload a DACPAC fájl az artifact-ba
       - name: Upload DACPAC for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -42,9 +47,10 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write  # Required for requesting the JWT
 
     steps:
+      # Töltsd le az artifact-et a build szakaszból
       - name: Download DACPAC from build job
         uses: actions/download-artifact@v4
         with:
@@ -74,7 +80,7 @@ jobs:
           unzip /tmp/sqlpackage-linux.zip -d /home/sqlpackage
           chmod a+x /home/sqlpackage/sqlpackage
 
-      # Ellenőrizd, hogy ott van-e a DACPAC fájl
+      # Ellenőrizd a DACPAC fájl elérhetőségét a deploy szakaszban
       - name: Verify DACPAC file location in deploy
         run: |
           ls /tmp/myapp/imdbtitles_sample_azure.dacpac
