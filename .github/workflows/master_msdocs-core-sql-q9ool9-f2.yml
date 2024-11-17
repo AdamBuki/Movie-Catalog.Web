@@ -26,8 +26,7 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: Copy dacpac
-        run: |
-          cp MovieCatalog.Web/    imdbtitles_sample_azure.dacpac ${{env.  DOTNET_ROOT}}/myapp
+        run: cp MovieCatalog.Web/imdbtitles_sample_azure.dacpac /home/site/wwwroot
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
