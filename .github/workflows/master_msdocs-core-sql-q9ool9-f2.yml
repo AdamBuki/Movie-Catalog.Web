@@ -25,6 +25,10 @@ jobs:
       - name: Publish with dotnet
         run: dotnet publish -c Release -o /tmp/myapp
 
+      - name: Verify DACPAC file location
+        run: |
+          ls /tmp/myapp/imdbtitles_sample_azure.dacpac
+          
       - name: Upload DACPAC for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -71,7 +75,7 @@ jobs:
           chmod a+x /home/sqlpackage/sqlpackage
 
       # Ellenőrizd, hogy ott van-e a DACPAC fájl
-      - name: Verify DACPAC file location
+      - name: Verify DACPAC file location in deploy
         run: |
           ls /tmp/myapp/imdbtitles_sample_azure.dacpac
 
