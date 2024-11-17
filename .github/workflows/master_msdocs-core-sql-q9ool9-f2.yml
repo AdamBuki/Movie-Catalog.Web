@@ -31,8 +31,18 @@ jobs:
       - name: Copy dacpac to build output
         run: cp imdbtitles_sample_azure.dacpac ${{env.DOTNET_ROOT}}/myapp
 
+      - name: Prepare publish output directory
+        run: |
+          if [ -f "/usr/share/dotnet/myapp" ]; then
+          rm /usr/share/dotnet/myapp
+          fi
+          mkdir -p /usr/share/dotnet/myapp
+
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o /usr/share/dotnet/myapp
+          
+#      - name: dotnet publish
+ #       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
